@@ -154,33 +154,55 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTransform();
     requestAnimationFrame(animate);
 });
-// ========== Динамическая шапка ==========
+
+// ========== Динамическая шапка (надёжный способ) ==========
 (function () {
     const header = document.querySelector('.header');
-    const hero = document.querySelector('.hero');
+    if (!header) return;
 
-    if (!header || !hero) return;
+    const sections = document.querySelectorAll('[data-header-theme]');
+    if (sections.length === 0) return;
 
-    const observer = new IntersectionObserver(
-        (entries) => {
-            entries.forEach(entry => {
-                // Если hero не пересекается с верхней границей (его верх ушёл выше 80px от верха)
-                if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
-                    header.classList.add('header--dark');
-                } else {
-                    header.classList.remove('header--dark');
+    // Находим первую секцию, верхняя граница которой пересекает верхнюю область экрана (0..80px от верха)
+    function getTopmostVisibleSection() {
+        let bestSection = null;
+        let bestTop = Infinity;
+
+        sections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            // Нас интересуют секции, верх которых находится в пределах от 0 до 80px от верха вьюпорта
+            if (rect.top <= 80 && rect.bottom > 0) {
+                // Чем ближе к верху, тем лучше
+                if (rect.top < bestTop) {
+                    bestTop = rect.top;
+                    bestSection = section;
                 }
-            });
-        },
-        {
-            // Срабатываем, когда hero выходит за пределы корневой области,
-            // но с отступом в 80px (высота шапки)
-            rootMargin: '-80px 0px 0px 0px',
-            threshold: 0
-        }
-    );
+            }
+        });
+        return bestSection;
+    }
 
-    observer.observe(hero);
+    function updateHeaderTheme() {
+        const topSection = getTopmostVisibleSection();
+        if (topSection) {
+            const theme = topSection.dataset.headerTheme;
+            if (theme === 'dark') {
+                header.classList.add('header--dark');
+            } else {
+                header.classList.remove('header--dark');
+            }
+        } else {
+            // Если ни одна секция не видна (например, между блоками), ставим тёмную тему (белый фон карусели)
+            header.classList.add('header--dark');
+        }
+    }
+
+    // Слушаем скролл и ресайз
+    window.addEventListener('scroll', updateHeaderTheme, { passive: true });
+    window.addEventListener('resize', updateHeaderTheme);
+
+    // Вызываем сразу
+    updateHeaderTheme();
 })();
 
 // ========== Карусель команды (цикличная, плавная) ==========
