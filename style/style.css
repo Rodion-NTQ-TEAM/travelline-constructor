@@ -14,7 +14,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ========== Шапка (прозрачная) ========== */
+/* ========== Шапка (прозрачная, динамический цвет) ========== */
 .header {
     position: fixed;
     top: 0;
@@ -23,6 +23,11 @@ body {
     background-color: transparent;
     z-index: 1000;
     height: 80px;
+    /* Основной цвет элементов (меняется через модификатор) */
+    --header-color: #ffffff;
+    /* по умолчанию белый для hero */
+    color: var(--header-color);
+    transition: color 0.3s;
 }
 
 .header__container {
@@ -40,7 +45,8 @@ body {
     align-items: center;
     gap: 8px;
     text-decoration: none;
-    color: #ffffff;
+    color: inherit;
+    /* наследует от header */
     transition: opacity 0.2s;
 }
 
@@ -51,7 +57,7 @@ body {
 .header__logo-icon {
     width: 36px;
     height: 36px;
-    filter: brightness(0) invert(1);
+    /* currentColor работает через fill, заданный в SVG */
 }
 
 .header__logo-text {
@@ -59,7 +65,7 @@ body {
     font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: 2px;
-    color: #ffffff;
+    color: inherit;
     line-height: 1;
 }
 
@@ -79,10 +85,11 @@ body {
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 500;
-    color: #ffffff;
+    color: inherit;
+    /* наследует от header */
 }
 
-/* ========== Кнопка "Вакансии" ========== */
+/* ========== Кнопка "Вакансии" (инвертирована относительно шапки) ========== */
 .header__vacancy-btn {
     display: inline-flex;
     align-items: center;
@@ -95,6 +102,7 @@ body {
     font-weight: 400;
     line-height: normal;
     border: 0;
+    /* без рамки */
     border-radius: 15px;
     opacity: 1;
     transition: color .3s, background-color .3s;
@@ -102,17 +110,33 @@ body {
     padding: 10px 24px;
     font-size: 0.95rem;
     text-decoration: none;
+
+    /* Стили для hero (шапка белая) – инвертирована: синий текст, белый фон */
     color: #507bce;
-    /* синий текст */
     background-color: #ffffff;
-    /* белый фон */
 }
 
 .header__vacancy-btn:hover {
     background-color: #507bce;
-    /* синий фон при наведении */
     color: #ffffff;
-    /* белый текст */
+}
+
+/* Стили для тёмной шапки (на белом фоне карусели) – инвертирована: белый текст, синий фон */
+.header--dark .header__vacancy-btn {
+    color: #ffffff;
+    background-color: #507bce;
+}
+
+.header--dark .header__vacancy-btn:hover {
+    background-color: #ffffff;
+    /* чуть темнее синий при наведении, можно оставить #ffffff */
+    color: #507bce;
+}
+
+/* Тёмный вариант (синий текст для белого фона карусели) */
+.header--dark {
+    --header-color: #507bce;
+    /* синий */
 }
 
 /* ========== Hero-секция (~80vh) ========== */
@@ -255,4 +279,65 @@ body {
 .snapping .carousel__left .carousel__list,
 .snapping .carousel__right .carousel__list {
     transition: transform 0.4s ease;
+}
+
+/* ========== Блок "Любим и бережем свою команду" ========== */
+.team-intro {
+    width: 100%;
+    height: 60vh;
+    background-color: #507bce;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.team-intro__content {
+    width: 100%;
+    padding: 0 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.team-intro__text-wrapper {
+    position: relative;
+    display: inline-block;
+    /* ширина по содержимому */
+}
+
+.team-intro__text {
+    text-align: center;
+    /* текст внутри центрирован, но это не обязательно, можно left */
+}
+
+.team-intro__title {
+    font-family: "Montserrat", Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 3.2rem;
+    /* уменьшили для одной строки */
+    color: #ffffff;
+    line-height: 1.2;
+    margin: 0 0 20px 0;
+    white-space: nowrap;
+    /* гарантирует одну строку */
+}
+
+.team-intro__subtitle {
+    font-family: "Montserrat", Verdana, sans-serif;
+    font-weight: 400;
+    font-size: 1.8rem;
+    color: #ffffff;
+    opacity: 0.8;
+    margin: 0;
+}
+
+/* Сердечко абсолютно справа от текста */
+.team-intro__heart {
+    position: absolute;
+    left: 100%;
+    /* сразу за правым краем текстового блока */
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 30px;
+    /* отступ от текста */
+    flex-shrink: 0;
 }

@@ -154,3 +154,31 @@ document.addEventListener('DOMContentLoaded', () => {
     applyTransform();
     requestAnimationFrame(animate);
 });
+// ========== Динамическая шапка ==========
+(function () {
+    const header = document.querySelector('.header');
+    const hero = document.querySelector('.hero');
+
+    if (!header || !hero) return;
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach(entry => {
+                // Если hero не пересекается с верхней границей (его верх ушёл выше 80px от верха)
+                if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+                    header.classList.add('header--dark');
+                } else {
+                    header.classList.remove('header--dark');
+                }
+            });
+        },
+        {
+            // Срабатываем, когда hero выходит за пределы корневой области,
+            // но с отступом в 80px (высота шапки)
+            rootMargin: '-80px 0px 0px 0px',
+            threshold: 0
+        }
+    );
+
+    observer.observe(hero);
+})();
