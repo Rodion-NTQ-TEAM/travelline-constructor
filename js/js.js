@@ -182,3 +182,138 @@ document.addEventListener('DOMContentLoaded', () => {
 
     observer.observe(hero);
 })();
+
+// ========== Карусель команды (цикличная, плавная) ==========
+(function () {
+    const track = document.getElementById('teamTrack');
+    const carousel = document.getElementById('teamCarousel');
+    if (!track || !carousel) return;
+
+    // Должности
+    const roles = [
+        'Frontend-разработчик',
+        'Backend-разработчик',
+        'QA-инженер',
+        'DevOps',
+        'Дизайнер',
+        'Менеджер проектов',
+        'HR-менеджер',
+        'Аналитик',
+        'Техлид',
+        'Team Lead',
+        'Системный администратор',
+        'Продукт-менеджер',
+        'Тестировщик'
+    ];
+
+    const teamList = [
+        { name: 'Ваня Потехин', photo: 'images/0g73x2njkshf9qmujyub0hjp9zl87v1w.png' },
+        { name: 'Костя Дмитриев', photo: 'images/3ht0rqk20ni0ox2vb7uqafl4b4d43h2w.png' },
+        { name: 'Лена Мочалова', photo: 'images/9m2v37w8bboj9zsr34ohimbzboi2rbej.png' },
+        { name: 'Гасан Агаев', photo: 'images/72mm50028lx702598mu3o564qcbtlxn4.png' },
+        { name: 'Таня Глазырина', photo: 'images/aqkl6fr9dl37nsbgbck489ltq9gaxjwj.png' },
+        { name: 'Саша Очеев', photo: 'images/dh9piduru4t57xz8i7aqpjt6nxysrwc9.png' },
+        { name: 'Настя Волкова', photo: 'images/dmjg21l9b1oqioh6y3bsdmsuo73wwasu.png' },
+        { name: 'Оля Рядова', photo: 'images/elpr32rtbthyfs96gyv3e4kl16tasho9.png' },
+        { name: 'Женя Гермогенов', photo: 'images/lp0xwm3awi8twhvqovjfzlca8eboax6u.png' },
+        { name: 'Игорь Егошин', photo: 'images/lp4sz53lkyjv8p483o9kt4ikpe2xs8pk.png' },
+        { name: 'Настя Ягодарова', photo: 'images/m0euwozke0u8vke8q63fmtif73qm3vhm.png' },
+        { name: 'Алексей Герасимов', photo: 'images/zjpczcqzikerwej1coy74ti6y7sb0y9d.png' },
+        { name: 'Юра Костин', photo: 'images/rsx07xrge1cz7ql0gw8j4ao3fca0z7x0.png' }
+    ];
+
+    teamList.forEach(member => {
+        member.role = roles[Math.floor(Math.random() * roles.length)];
+    });
+
+    // Перемешиваем
+    for (let i = teamList.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [teamList[i], teamList[j]] = [teamList[j], teamList[i]];
+    }
+
+    const itemWidth = 336;
+    const gap = 30;
+    const setWidth = teamList.length * (itemWidth + gap);
+
+    const tripleTeam = [...teamList, ...teamList, ...teamList];
+
+    tripleTeam.forEach(member => {
+        const div = document.createElement('div');
+        div.className = 'team-member';
+        div.style.width = itemWidth + 'px';
+        div.innerHTML = `
+            <img class="team-member__photo" src="${member.photo}" alt="${member.name}" draggable="false" />
+            <div class="team-member__photo-gradient"></div>
+            <div class="team-member__info">
+                <div class="team-member__name">${member.name}</div>
+                <div class="team-member__role">${member.role}</div>
+            </div>
+        `;
+        track.appendChild(div);
+    });
+
+    carousel.scrollLeft = setWidth;
+
+    // Состояния
+    let isDown = false;
+    let startX = 0;
+    let scrollStart = 0;
+    let autoScrollActive = true; // автоскролл активен
+    // Единственный requestAnimationFrame, работающий всегда
+    let rafId = null;
+
+    // Бесшовный зацикливающий сдвиг
+    function clampScroll() {
+        if (carousel.scrollLeft >= 2 * setWidth) {
+            carousel.scrollLeft -= setWidth;
+        } else if (carousel.scrollLeft < setWidth) {
+            carousel.scrollLeft += setWidth;
+        }
+    }
+
+    // Основной цикл анимации
+    function loop() {
+        if (!isDown && autoScrollActive) {
+            carousel.scrollLeft += 0.6; // скорость автоскролла
+            clampScroll();
+        }
+        rafId = requestAnimationFrame(loop);
+    }
+
+    // Запускаем постоянный loop
+    rafId = requestAnimationFrame(loop);
+
+    // Ручное перетаскивание
+    carousel.addEventListener('mousedown', (e) => {
+        isDown = true;
+        carousel.style.cursor = 'grabbing';
+        startX = e.pageX;
+        scrollStart = carousel.scrollLeft;
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (isDown) {
+            isDown = false;
+            carousel.style.cursor = 'grab';
+            clampScroll(); // подкорректируем после перетаскивания
+        }
+    });
+
+    carousel.addEventListener('mouseleave', () => {
+        if (isDown) {
+            isDown = false;
+            carousel.style.cursor = 'grab';
+            clampScroll();
+        }
+        autoScrollActive = true; // возобновляем автоскролл при уходе
+    });
+
+    carousel.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const dx = e.pageX - startX;
+        carousel.scrollLeft = scrollStart - dx;
+    });
+
+})();
