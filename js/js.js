@@ -1,161 +1,156 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Исходные данные для карусели
+    // ========== Данные карусели (8 элементов) ==========
     const itemsData = [
-        // Исходные три элемента
-        {
-            left: `<img src="images/tl-logo.svg" alt="TL" class="carousel__logo">`,
-            right: `аккредитованная<br>IT-компания`
-        },
-        {
-            left: `300+`,
-            right: `сотрудников в техотделе<br>и более 800 в компании`
-        },
-        {
-            left: `12 000+`,
-            right: `клиентов работают с нами`
-        },
-        // Добавленные элементы
-        {
-            left: `>1,5 млн`,
-            right: `гостей в месяц бронируют через TravelLine`
-        },
-        {
-            left: `300+`,
-            right: `интеграций со сторонними сервисами`
-        },
-        {
-            left: `<img src="images/tl-logo.svg" alt="TL" class="carousel__logo">`,
-            right: `серебро в рейтинге лучших<br>работодателей Forbes 2025 г.`
-        },
-        {
-            left: `с 2008 года`,
-            right: `создаем инструменты для отельеров`
-        },
-        {
-            left: `топ-50`,
-            right: `в рейтинге работодателей hh.ru<br>2022-2025 гг.`
-        }
+        { left: `<img src="images/tl-logo.svg" alt="TL" class="carousel__logo">`, right: `аккредитованная<br>IT-компания` },
+        { left: `300+`, right: `сотрудников в техотделе<br>и более 800 в компании` },
+        { left: `12 000+`, right: `клиентов работают с нами` },
+        { left: `>1,5 млн`, right: `гостей в месяц бронируют через TravelLine` },
+        { left: `300+`, right: `интеграций со сторонними сервисами` },
+        { left: `<img src="images/tl-logo.svg" alt="TL" class="carousel__logo">`, right: `серебро в рейтинге лучших<br>работодателей Forbes 2025 г.` },
+        { left: `с 2008 года`, right: `создаем инструменты для отельеров` },
+        { left: `топ-50`, right: `в рейтинге работодателей hh.ru<br>2022-2025 гг.` }
     ];
 
     const leftList = document.getElementById('left-list');
     const rightList = document.getElementById('right-list');
     const carousel = document.getElementById('carousel');
+    const itemHeight = 120;
+    const wheelSpeed = 0.6;
+    const snapThreshold = itemHeight * 0.55;
+    const damping = 0.04;
+    const idleDelay = 250;
 
-    // Строим расширенные списки для бесконечной прокрутки
-    function buildInfiniteLists() {
-        // Очищаем
-        leftList.innerHTML = '';
-        rightList.innerHTML = '';
+    // ========== Три копии списка для полной цикличности ==========
+    // Повторяем itemsData три раза подряд: [0,1,2,3,4,5,6,7, 0,1,...]
+    const totalOriginals = itemsData.length;
+    const tripleSequence = [...itemsData, ...itemsData, ...itemsData]; // 24 элемента
+    const totalSlides = tripleSequence.length;
+    const listHeight = itemHeight * totalSlides;
 
-        // Собираем массив из 5 элементов: [последний, 0, 1, 2, первый]
-        const total = itemsData.length;
-        const sequence = [
-            itemsData[total - 1], // копия последнего
-            ...itemsData,
-            itemsData[0]          // копия первого
-        ];
+    // Заполняем DOM
+    leftList.innerHTML = '';
+    rightList.innerHTML = '';
+    tripleSequence.forEach((item, idx) => {
+        const liLeft = document.createElement('li');
+        liLeft.className = 'carousel__item';
+        liLeft.setAttribute('data-index', idx);
+        liLeft.innerHTML = item.left;
+        leftList.appendChild(liLeft);
 
-        sequence.forEach((item, idx) => {
-            // левый элемент
-            const liLeft = document.createElement('li');
-            liLeft.className = 'carousel__item';
-            liLeft.setAttribute('data-index', idx); // индекс в sequence
-            liLeft.innerHTML = item.left;
-            leftList.appendChild(liLeft);
+        const liRight = document.createElement('li');
+        liRight.className = 'carousel__item';
+        liRight.setAttribute('data-index', idx);
+        liRight.innerHTML = item.right;
+        rightList.appendChild(liRight);
+    });
 
-            // правый элемент
-            const liRight = document.createElement('li');
-            liRight.className = 'carousel__item';
-            liRight.setAttribute('data-index', idx);
-            liRight.innerHTML = item.right;
-            rightList.appendChild(liRight);
-        });
+    // Начальная позиция: центр второго набора (индекс = totalOriginals)
+    let startIndex = totalOriginals; // это первый элемент второго набора (аккредитованная IT-компания)
+    let targetPos = startIndex * itemHeight + itemHeight / 2;
+    let currentPos = targetPos;
+    let isSnapping = false;
+    let wheelTimeout = null;
 
-        return sequence.length; // 5
-    }
-
-    const totalSlides = buildInfiniteLists(); // 5
-    // Активный индекс среди sequence (от 1 до 3 включительно — исходные элементы)
-    let activeIndex = 1; // соответствует itemsData[0]
-    const itemHeight = 180; // должно совпадать с CSS (высота .carousel__item)
-    let isTransitioning = false;
-
-    function setActiveClasses() {
-        document.querySelectorAll('.carousel__item').forEach(item => {
+    function updateOpacity() {
+        const allRightItems = rightList.querySelectorAll('.carousel__item');
+        allRightItems.forEach((item) => {
             const idx = parseInt(item.getAttribute('data-index'), 10);
-            item.classList.toggle('active', idx === activeIndex);
+            const itemCenter = idx * itemHeight + itemHeight / 2;
+            const distance = Math.abs(itemCenter - currentPos);
+            let opacity;
+            if (distance <= itemHeight) {
+                // от центра (1) до соседа (0.2)
+                opacity = 1 - (distance / itemHeight) * 0.8;
+            } else {
+                // дальше соседа: от 0.2 до 0.05 на расстоянии 2*itemHeight
+                const extra = Math.min(distance - itemHeight, itemHeight);
+                opacity = 0.2 - (extra / itemHeight) * 0.15;
+            }
+            item.style.opacity = Math.max(0.05, opacity);
         });
     }
 
-    function updateCarousel(animate = true) {
-        // Вычисляем сдвиг так, чтобы элемент с activeIndex оказался в центре (50% высоты контейнера)
-        const listHeight = itemHeight * totalSlides;
-        // Центрирование: позиция центра элемента activeIndex относительно начала списка
-        const offset = (activeIndex * itemHeight) + (itemHeight / 2);
-        // translateY, чтобы этот центр совпадал с 50% контейнера
-        const translateY = `calc(-50% - ${offset - (listHeight / 2)}px)`;
-
-        if (!animate) {
-            leftList.style.transition = 'none';
-            rightList.style.transition = 'none';
-        } else {
-            leftList.style.transition = 'transform 0.4s ease';
-            rightList.style.transition = 'transform 0.4s ease';
-        }
-
+    function applyTransform() {
+        const translateY = `calc(-50% - ${currentPos - listHeight / 2}px)`;
         leftList.style.transform = `translateY(${translateY})`;
         rightList.style.transform = `translateY(${translateY})`;
-        setActiveClasses();
+        updateOpacity();
+    }
+
+    function animate() {
+        if (!isSnapping) {
+            currentPos += (targetPos - currentPos) * damping;
+            if (Math.abs(targetPos - currentPos) < 0.1) {
+                currentPos = targetPos;
+            }
+        } else {
+            currentPos += (targetPos - currentPos) * damping;
+            if (Math.abs(targetPos - currentPos) < 0.1) {
+                currentPos = targetPos;
+                isSnapping = false;
+            }
+        }
+        applyTransform();
+        requestAnimationFrame(animate);
+    }
+
+    // Фиксация к ближайшему элементу (без переносов)
+    function snapToNearest() {
+        // Находим элемент, ближайший к targetPos, среди ВСЕХ элементов (индексы от 0 до totalSlides-1)
+        let nearestIndex = 0;
+        let minDistance = Infinity;
+        for (let idx = 0; idx < totalSlides; idx++) {
+            const center = idx * itemHeight + itemHeight / 2;
+            const dist = Math.abs(center - targetPos);
+            if (dist < minDistance) {
+                minDistance = dist;
+                nearestIndex = idx;
+            }
+        }
+
+        const nearestCenter = nearestIndex * itemHeight + itemHeight / 2;
+        const currentIndex = Math.round(currentPos / itemHeight);
+        const currentCenter = currentIndex * itemHeight + itemHeight / 2;
+        const distFromCurrent = Math.abs(targetPos - currentCenter);
+
+        if (nearestIndex === currentIndex && distFromCurrent <= snapThreshold) {
+            targetPos = currentCenter;   // возврат к текущему
+        } else {
+            targetPos = nearestCenter;   // переключение на ближайший
+        }
+
+        isSnapping = true;
     }
 
     function handleWheel(e) {
         e.preventDefault();
-        if (isTransitioning) return;
-
-        if (e.deltaY > 0) {
-            // вниз
-            if (activeIndex >= totalSlides - 2) { // 3 (последний оригинал) -> переходим на 4 (копия первого)
-                activeIndex++;
-                updateCarousel(true);
-                isTransitioning = true;
-                setTimeout(() => {
-                    // мгновенно переставляем на индекс 1 (тот же визуальный элемент)
-                    activeIndex = 1;
-                    updateCarousel(false);
-                    isTransitioning = false;
-                }, 400); // длительность анимации
-            } else {
-                activeIndex++;
-                updateCarousel(true);
-                isTransitioning = true;
-                setTimeout(() => {
-                    isTransitioning = false;
-                }, 400);
-            }
-        } else {
-            // вверх
-            if (activeIndex <= 1) { // 1 -> пытаемся уйти на 0 (копия последнего)
-                activeIndex--;
-                updateCarousel(true);
-                isTransitioning = true;
-                setTimeout(() => {
-                    activeIndex = totalSlides - 2; // 3 (исходный последний)
-                    updateCarousel(false);
-                    isTransitioning = false;
-                }, 400);
-            } else {
-                activeIndex--;
-                updateCarousel(true);
-                isTransitioning = true;
-                setTimeout(() => {
-                    isTransitioning = false;
-                }, 400);
-            }
+        if (isSnapping) {
+            targetPos = currentPos;
+            isSnapping = false;
         }
+        targetPos += e.deltaY * wheelSpeed;
+
+        // Если targetPos выходит за пределы нашего большого списка, перебрасываем на эквивалентную позицию,
+        // чтобы сохранить ощущение бесконечности и избежать выхода за границы DOM.
+        // Диапазон допустимых значений: от центра первого элемента до центра последнего.
+        const minPos = itemHeight / 2;
+        const maxPos = (totalSlides - 1) * itemHeight + itemHeight / 2;
+        if (targetPos < minPos) {
+            // перескакиваем на аналогичную позицию в конце
+            targetPos += totalOriginals * itemHeight;
+            currentPos += totalOriginals * itemHeight;
+        } else if (targetPos > maxPos) {
+            targetPos -= totalOriginals * itemHeight;
+            currentPos -= totalOriginals * itemHeight;
+        }
+
+        clearTimeout(wheelTimeout);
+        wheelTimeout = setTimeout(() => {
+            snapToNearest();
+        }, idleDelay);
     }
 
     carousel.addEventListener('wheel', handleWheel, { passive: false });
-
-    // Инициализация
-    updateCarousel(false);
+    applyTransform();
+    requestAnimationFrame(animate);
 });

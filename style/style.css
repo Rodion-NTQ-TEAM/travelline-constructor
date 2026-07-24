@@ -8,7 +8,7 @@
 }
 
 body {
-    font-family: "Manrope", Verdana, sans-serif;
+    font-family: "Montserrat", Verdana, sans-serif;
     color: #333;
     background-color: #fff;
     overflow-x: hidden;
@@ -55,7 +55,7 @@ body {
 }
 
 .header__logo-text {
-    font-family: "Manrope", Verdana, sans-serif;
+    font-family: "Montserrat", Verdana, sans-serif;
     font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: 2px;
@@ -89,7 +89,7 @@ body {
     height: max-content;
     width: max-content;
     margin: 0;
-    font-family: "Manrope", Verdana, sans-serif;
+    font-family: "Montserrat", Verdana, sans-serif;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -131,7 +131,7 @@ body {
 }
 
 .hero__title {
-    font-family: "Manrope", Verdana, sans-serif;
+    font-family: "Montserrat", Verdana, sans-serif;
     font-weight: 300;
     font-size: 4.5rem;
     line-height: 1.2;
@@ -154,32 +154,32 @@ body {
 .carousel__track {
     display: flex;
     width: 100%;
-    height: 400px;
-    /* высота видимой области */
+    height: 100%;
+    /* занимает всю высоту карусели (100vh) */
     position: relative;
     align-items: center;
 }
 
-/* Левая колонка — неактивные элементы полностью скрыты */
+/* Левая колонка — градиентная рамка (виден только 1 элемент) */
 .carousel__left {
     flex: 1;
     height: 100%;
     overflow: hidden;
     position: relative;
-    /* Резкая маска: видно только центральные 40% (с 30% до 70% высоты) */
+    /* Чёрная зона точно по высоте элемента (120px), плавный переход 10px на границах */
     -webkit-mask-image: linear-gradient(to bottom,
             transparent 0%,
-            transparent 30%,
-            black 30%,
-            black 70%,
-            transparent 70%,
+            transparent calc(50% - 70px),
+            black calc(50% - 60px),
+            black calc(50% + 60px),
+            transparent calc(50% + 70px),
             transparent 100%);
     mask-image: linear-gradient(to bottom,
             transparent 0%,
-            transparent 30%,
-            black 30%,
-            black 70%,
-            transparent 70%,
+            transparent calc(50% - 70px),
+            black calc(50% - 60px),
+            black calc(50% + 60px),
+            transparent calc(50% + 70px),
             transparent 100%);
 }
 
@@ -188,7 +188,7 @@ body {
     top: 50%;
     left: 0;
     transform: translateY(-50%);
-    transition: transform 0.4s ease;
+    /* transition убран — будет добавляться через JS класс .snapping */
     list-style: none;
     width: 100%;
     margin: 0;
@@ -204,14 +204,10 @@ body {
     line-height: 1.2;
 }
 
-/* Увеличенный логотип */
 .carousel__left .carousel__item img {
     height: 50px;
-    /* фиксированная высота */
     width: auto;
-    /* ширина подстроится пропорционально */
     display: block;
-    /* убирает возможные отступы */
 }
 
 /* Правая колонка */
@@ -227,7 +223,7 @@ body {
     top: 50%;
     left: 0;
     transform: translateY(-50%);
-    transition: transform 0.4s ease;
+    /* transition убран */
     list-style: none;
     width: 100%;
     margin: 0;
@@ -236,7 +232,7 @@ body {
 
 .carousel__right .carousel__item {
     color: #000000;
-    font-weight: 400;
+    font-weight: 600;
     font-size: 2rem;
     justify-content: flex-start;
     text-align: left;
@@ -245,20 +241,16 @@ body {
 
 /* Элементы списка (общие) */
 .carousel__item {
-    height: 180px;
+    height: 120px;
     display: flex;
     align-items: center;
     padding: 0 20px;
     white-space: normal;
-    transition: opacity 0.4s, color 0.4s;
+    transition: opacity 0.3s;
 }
 
-/* Активный элемент (обе колонки) */
-.carousel__item.active {
-    opacity: 1 !important;
-}
-
-/* Неактивные элементы в правой колонке (полупрозрачные) */
-.carousel__right .carousel__item:not(.active) {
-    opacity: 0.15;
+/* Класс для анимированного snap — добавляет transition к трансформации */
+.snapping .carousel__left .carousel__list,
+.snapping .carousel__right .carousel__list {
+    transition: transform 0.4s ease;
 }
