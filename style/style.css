@@ -82,6 +82,7 @@ body {
     color: #ffffff;
 }
 
+/* ========== Кнопка "Вакансии" ========== */
 .header__vacancy-btn {
     display: inline-flex;
     align-items: center;
@@ -94,7 +95,6 @@ body {
     font-weight: 400;
     line-height: normal;
     border: 0;
-    /* убираем рамку */
     border-radius: 15px;
     opacity: 1;
     transition: color .3s, background-color .3s;
@@ -102,15 +102,17 @@ body {
     padding: 10px 24px;
     font-size: 0.95rem;
     text-decoration: none;
-    color: #ffffff;
-    background-color: transparent;
-    /* без фона */
+    color: #507bce;
+    /* синий текст */
+    background-color: #ffffff;
+    /* белый фон */
 }
 
 .header__vacancy-btn:hover {
     background-color: #507bce;
     /* синий фон при наведении */
     color: #ffffff;
+    /* белый текст */
 }
 
 /* ========== Hero-секция (~80vh) ========== */
