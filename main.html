@@ -5,10 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Работа в TravelLine Tech</title>
-
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="images/tl-logo.svg">
-
     <link rel="stylesheet" href="style/style.css">
 </head>
 
@@ -16,7 +13,6 @@
     <!-- Прозрачная фиксированная шапка -->
     <header class="header">
         <div class="header__container">
-            <!-- Новый логотип: иконка + текст -->
             <a href="#" class="header__logo">
                 <img src="images/tl-logo.svg" alt="TravelLine" class="header__logo-icon">
                 <span class="header__logo-text">TRAVELLINE</span>
@@ -42,7 +38,7 @@
         </div>
     </header>
 
-    <!-- Hero-блок -->
+    <!-- Hero-блок (~80vh) -->
     <section class="hero">
         <div class="hero__content">
             <h2 class="hero__title">
@@ -50,6 +46,18 @@
                 и принимаем новые вызовы<br>
                 TravelTech индустрии
             </h2>
+        </div>
+    </section>
+
+    <!-- Вертикальная карусель -->
+    <section class="vertical-carousel" id="carousel">
+        <div class="carousel__track">
+            <div class="carousel__left">
+                <ul class="carousel__list" id="left-list"></ul>
+            </div>
+            <div class="carousel__right">
+                <ul class="carousel__list" id="right-list"></ul>
+            </div>
         </div>
     </section>
 

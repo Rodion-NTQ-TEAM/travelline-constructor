@@ -11,6 +11,7 @@ body {
     font-family: "Manrope", Verdana, sans-serif;
     color: #333;
     background-color: #fff;
+    overflow-x: hidden;
 }
 
 /* ========== Шапка (прозрачная) ========== */
@@ -34,7 +35,6 @@ body {
     justify-content: space-between;
 }
 
-/* Логотип — контейнер */
 .header__logo {
     display: flex;
     align-items: center;
@@ -48,15 +48,12 @@ body {
     opacity: 0.8;
 }
 
-/* Иконка логотипа */
 .header__logo-icon {
     width: 36px;
     height: 36px;
-    /* можно добавить filter для точной подгонки под белый текст */
     filter: brightness(0) invert(1);
 }
 
-/* Текст TRAVELLINE */
 .header__logo-text {
     font-family: "Manrope", Verdana, sans-serif;
     font-size: 1.5rem;
@@ -66,7 +63,6 @@ body {
     line-height: 1;
 }
 
-/* Навигация */
 .header__nav {
     display: flex;
     align-items: center;
@@ -86,69 +82,183 @@ body {
     color: #ffffff;
 }
 
-/* Кнопка "Вакансии" */
 .header__vacancy-btn {
-    display: -webkit-inline-box;
-    display: -ms-inline-flexbox;
     display: inline-flex;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
     align-items: center;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
     justify-content: center;
-    height: -webkit-max-content;
-    height: -moz-max-content;
     height: max-content;
-    width: -webkit-max-content;
-    width: -moz-max-content;
-    width: max-con tent;
+    width: max-content;
     margin: 0;
     font-family: "Manrope", Verdana, sans-serif;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
     border: 0;
+    /* убираем рамку */
     border-radius: 15px;
     opacity: 1;
-    -webkit-transition: color .3s, background-color .3s;
     transition: color .3s, background-color .3s;
 
     padding: 10px 24px;
     font-size: 0.95rem;
     text-decoration: none;
-    color: #507bce;
-    background-color: #ffffff;
-    border: none;
+    color: #ffffff;
+    background-color: transparent;
+    /* без фона */
 }
 
 .header__vacancy-btn:hover {
     background-color: #507bce;
+    /* синий фон при наведении */
     color: #ffffff;
-    border: none;
 }
 
-/* ========== Hero-секция ========== */
+/* ========== Hero-секция (~80vh) ========== */
 .hero {
     width: 100%;
-    min-height: 100vh;
+    height: 80vh;
     background-color: #507bce;
     display: flex;
     align-items: center;
     padding-top: 80px;
     padding-left: 12%;
+    padding-right: 5%;
 }
 
 .hero__content {
-    max-width: 800px;
+    width: 100%;
     text-align: left;
 }
 
 .hero__title {
     font-family: "Manrope", Verdana, sans-serif;
-    font-size: 2.8rem;
-    font-weight: 700;
-    line-height: 1.3;
+    font-weight: 300;
+    font-size: 4.5rem;
+    line-height: 1.2;
     color: #ffffff;
     margin: 0;
+}
+
+/* ========== Вертикальная карусель ========== */
+.vertical-carousel {
+    width: 100%;
+    height: 100vh;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel__track {
+    display: flex;
+    width: 100%;
+    height: 400px;
+    /* высота видимой области */
+    position: relative;
+    align-items: center;
+}
+
+/* Левая колонка — неактивные элементы полностью скрыты */
+.carousel__left {
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    /* Резкая маска: видно только центральные 40% (с 30% до 70% высоты) */
+    -webkit-mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            transparent 30%,
+            black 30%,
+            black 70%,
+            transparent 70%,
+            transparent 100%);
+    mask-image: linear-gradient(to bottom,
+            transparent 0%,
+            transparent 30%,
+            black 30%,
+            black 70%,
+            transparent 70%,
+            transparent 100%);
+}
+
+.carousel__left .carousel__list {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    transition: transform 0.4s ease;
+    list-style: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.carousel__left .carousel__item {
+    color: #507bce;
+    font-weight: 700;
+    font-size: 3.5rem;
+    justify-content: flex-end;
+    text-align: right;
+    line-height: 1.2;
+}
+
+/* Увеличенный логотип */
+.carousel__left .carousel__item img {
+    height: 50px;
+    /* фиксированная высота */
+    width: auto;
+    /* ширина подстроится пропорционально */
+    display: block;
+    /* убирает возможные отступы */
+}
+
+/* Правая колонка */
+.carousel__right {
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel__right .carousel__list {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    transition: transform 0.4s ease;
+    list-style: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.carousel__right .carousel__item {
+    color: #000000;
+    font-weight: 400;
+    font-size: 2rem;
+    justify-content: flex-start;
+    text-align: left;
+    line-height: 1.4;
+}
+
+/* Элементы списка (общие) */
+.carousel__item {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    white-space: normal;
+    transition: opacity 0.4s, color 0.4s;
+}
+
+/* Активный элемент (обе колонки) */
+.carousel__item.active {
+    opacity: 1 !important;
+}
+
+/* Неактивные элементы в правой колонке (полупрозрачные) */
+.carousel__right .carousel__item:not(.active) {
+    opacity: 0.15;
 }
