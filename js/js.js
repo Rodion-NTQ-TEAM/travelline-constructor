@@ -211,42 +211,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const carousel = document.getElementById('teamCarousel');
     if (!track || !carousel) return;
 
-    // Должности
-    const roles = [
-        'Frontend-разработчик',
-        'Backend-разработчик',
-        'QA-инженер',
-        'DevOps',
-        'Дизайнер',
-        'Менеджер проектов',
-        'HR-менеджер',
-        'Аналитик',
-        'Техлид',
-        'Team Lead',
-        'Системный администратор',
-        'Продукт-менеджер',
-        'Тестировщик'
-    ];
-
+    // Должности new
     const teamList = [
-        { name: 'Ваня Потехин', photo: 'images/0g73x2njkshf9qmujyub0hjp9zl87v1w.png' },
-        { name: 'Костя Дмитриев', photo: 'images/3ht0rqk20ni0ox2vb7uqafl4b4d43h2w.png' },
-        { name: 'Лена Мочалова', photo: 'images/9m2v37w8bboj9zsr34ohimbzboi2rbej.png' },
-        { name: 'Гасан Агаев', photo: 'images/72mm50028lx702598mu3o564qcbtlxn4.png' },
-        { name: 'Таня Глазырина', photo: 'images/aqkl6fr9dl37nsbgbck489ltq9gaxjwj.png' },
-        { name: 'Саша Очеев', photo: 'images/dh9piduru4t57xz8i7aqpjt6nxysrwc9.png' },
-        { name: 'Настя Волкова', photo: 'images/dmjg21l9b1oqioh6y3bsdmsuo73wwasu.png' },
-        { name: 'Оля Рядова', photo: 'images/elpr32rtbthyfs96gyv3e4kl16tasho9.png' },
-        { name: 'Женя Гермогенов', photo: 'images/lp0xwm3awi8twhvqovjfzlca8eboax6u.png' },
-        { name: 'Игорь Егошин', photo: 'images/lp4sz53lkyjv8p483o9kt4ikpe2xs8pk.png' },
-        { name: 'Настя Ягодарова', photo: 'images/m0euwozke0u8vke8q63fmtif73qm3vhm.png' },
-        { name: 'Алексей Герасимов', photo: 'images/zjpczcqzikerwej1coy74ti6y7sb0y9d.png' },
-        { name: 'Юра Костин', photo: 'images/rsx07xrge1cz7ql0gw8j4ao3fca0z7x0.png' }
+        { name: 'Ваня Потехин', photo: 'images/0g73x2njkshf9qmujyub0hjp9zl87v1w.png', role: 'Frontend-разработчик' },
+        { name: 'Костя Дмитриев', photo: 'images/3ht0rqk20ni0ox2vb7uqafl4b4d43h2w.png', role: 'Backend-разработчик' },
+        { name: 'Лена Мочалова', photo: 'images/9m2v37w8bboj9zsr34ohimbzboi2rbej.png', role: 'QA-инженер' },
+        { name: 'Гасан Агаев', photo: 'images/72mm50028lx702598mu3o564qcbtlxn4.png', role: 'DevOps' },
+        { name: 'Таня Глазырина', photo: 'images/aqkl6fr9dl37nsbgbck489ltq9gaxjwj.png', role: 'Дизайнер' },
+        { name: 'Саша Очеев', photo: 'images/dh9piduru4t57xz8i7aqpjt6nxysrwc9.png', role: 'Менеджер проектов' },
+        { name: 'Настя Волкова', photo: 'images/dmjg21l9b1oqioh6y3bsdmsuo73wwasu.png', role: 'HR-менеджер' },
+        { name: 'Оля Рядова', photo: 'images/elpr32rtbthyfs96gyv3e4kl16tasho9.png', role: 'Аналитик' },
+        { name: 'Женя Гермогенов', photo: 'images/lp0xwm3awi8twhvqovjfzlca8eboax6u.png', role: 'Техлид' },
+        { name: 'Игорь Егошин', photo: 'images/lp4sz53lkyjv8p483o9kt4ikpe2xs8pk.png', role: 'Team Lead' },
+        { name: 'Настя Ягодарова', photo: 'images/m0euwozke0u8vke8q63fmtif73qm3vhm.png', role: 'Системный администратор' },
+        { name: 'Алексей Герасимов', photo: 'images/zjpczcqzikerwej1coy74ti6y7sb0y9d.png', role: 'Продукт-менеджер' },
+        { name: 'Юра Костин', photo: 'images/rsx07xrge1cz7ql0gw8j4ao3fca0z7x0.png', role: 'Тестировщик' }
     ];
-
-    teamList.forEach(member => {
-        member.role = roles[Math.floor(Math.random() * roles.length)];
-    });
 
     // Перемешиваем
     for (let i = teamList.length - 1; i > 0; i--) {
