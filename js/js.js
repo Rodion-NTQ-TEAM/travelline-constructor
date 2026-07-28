@@ -319,3 +319,94 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 })();
+
+// ========== Блок "Развиваем платформу" (скрывает шапку, блокирует скролл) ==========
+(function() {
+    const section = document.getElementById('platformSection');
+    const title = section ? section.querySelector('.platform-section__title') : null;
+    const header = document.querySelector('.header');
+    const headerNav = document.querySelector('.header__nav');
+    if (!section || !title) return;
+
+    let animationPlayed = false;
+    let blockTimeout = null;
+    let savedScrollY = 0;
+    let isLocked = false;
+
+    function hideHeader() {
+        if (header) header.classList.add('header--hidden');
+    }
+
+    function showHeader() {
+        if (header) header.classList.remove('header--hidden');
+    }
+
+    function lockPage() {
+        if (isLocked) return;
+        isLocked = true;
+        savedScrollY = window.scrollY;
+        document.body.style.overflow = 'hidden';
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${savedScrollY}px`;
+        document.body.style.width = '100%';
+        if (headerNav) headerNav.style.display = 'none';
+    }
+
+    function unlockPage() {
+        if (!isLocked) return;
+        isLocked = false;
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        window.scrollTo(0, savedScrollY);
+        if (headerNav) headerNav.style.display = '';
+    }
+
+    function startAnimation() {
+        if (animationPlayed) return;
+        animationPlayed = true;
+
+        title.classList.add('visible');
+        lockPage();
+        hideHeader();                 // <-- скрываем шапку
+
+        // Заглушка анимации (заменишь на реальную позже)
+        blockTimeout = setTimeout(() => {
+            unlockPage();
+            showHeader();            // <-- показываем шапку обратно
+        }, 3000);
+    }
+
+    function cancelAnimation() {
+        if (blockTimeout) {
+            clearTimeout(blockTimeout);
+            blockTimeout = null;
+        }
+        unlockPage();
+        showHeader();               // <-- возвращаем шапку при отмене
+        // animationPlayed не сбрасываем, чтобы при возврате не запускать повторно
+    }
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.99) {
+                    if (!animationPlayed) {
+                        startAnimation();
+                    }
+                } else {
+                    if (isLocked || blockTimeout) {
+                        cancelAnimation();
+                    }
+                    if (!animationPlayed) {
+                        title.classList.remove('visible');
+                    }
+                }
+            });
+        },
+        { threshold: [0.99] }
+    );
+
+    observer.observe(section);
+})();
