@@ -320,27 +320,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 })();
 
-// ========== Блок "Развиваем платформу" (скрывает шапку, блокирует скролл) ==========
-(function() {
+// ========== Блок "Развиваем платформу" (шапка скрыта на всём протяжении) ==========
+(function () {
     const section = document.getElementById('platformSection');
     const title = section ? section.querySelector('.platform-section__title') : null;
     const header = document.querySelector('.header');
     const headerNav = document.querySelector('.header__nav');
     if (!section || !title) return;
 
-    let animationPlayed = false;
-    let blockTimeout = null;
+    let animationPlayed = false;      // была ли анимация уже проиграна
+    let blockTimeout = null;          // таймер окончания анимации
     let savedScrollY = 0;
-    let isLocked = false;
+    let isLocked = false;             // скролл заблокирован
 
+    // Управление видимостью шапки
     function hideHeader() {
         if (header) header.classList.add('header--hidden');
     }
-
     function showHeader() {
         if (header) header.classList.remove('header--hidden');
     }
 
+    // Блокировка / разблокировка скролла
     function lockPage() {
         if (isLocked) return;
         isLocked = true;
@@ -349,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.position = 'fixed';
         document.body.style.top = `-${savedScrollY}px`;
         document.body.style.width = '100%';
-        if (headerNav) headerNav.style.display = 'none';
+        if (headerNav) headerNav.style.display = 'none';   // меню скрываем только при блокировке
     }
 
     function unlockPage() {
@@ -360,44 +361,56 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.top = '';
         document.body.style.width = '';
         window.scrollTo(0, savedScrollY);
-        if (headerNav) headerNav.style.display = '';
+        if (headerNav) headerNav.style.display = '';       // меню возвращаем
     }
 
+    // Запуск анимации (единожды)
     function startAnimation() {
         if (animationPlayed) return;
         animationPlayed = true;
 
         title.classList.add('visible');
-        lockPage();
-        hideHeader();                 // <-- скрываем шапку
+        lockPage();           // блокируем скролл на время анимации
+        hideHeader();         // шапка скрывается
 
-        // Заглушка анимации (заменишь на реальную позже)
+        // Заглушка анимации – заменить на реальную позже
         blockTimeout = setTimeout(() => {
-            unlockPage();
-            showHeader();            // <-- показываем шапку обратно
+            unlockPage();     // скролл разблокируем, но шапка остаётся скрытой!
+            // hideHeader() не вызываем, она уже скрыта
         }, 3000);
     }
 
+    // Отмена анимации (если ушли раньше времени)
     function cancelAnimation() {
         if (blockTimeout) {
             clearTimeout(blockTimeout);
             blockTimeout = null;
         }
-        unlockPage();
-        showHeader();               // <-- возвращаем шапку при отмене
-        // animationPlayed не сбрасываем, чтобы при возврате не запускать повторно
+        unlockPage();        // разблокируем скролл, если был заблокирован
+        showHeader();        // возвращаем шапку при выходе из блока
+        // animationPlayed не сбрасываем, чтобы при возврате не запускать анимацию заново
     }
 
+    // Наблюдатель
     const observer = new IntersectionObserver(
         (entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && entry.intersectionRatio >= 0.99) {
+                    // Вошли в блок полностью
                     if (!animationPlayed) {
-                        startAnimation();
+                        startAnimation();   // первый раз: запуск анимации (скроет шапку)
+                    } else {
+                        // Анимация уже была – просто скрываем шапку
+                        hideHeader();
+                        title.classList.add('visible');
                     }
                 } else {
+                    // Вышли из блока (или не полностью видны)
                     if (isLocked || blockTimeout) {
-                        cancelAnimation();
+                        cancelAnimation();  // прерываем анимацию, возвращаем шапку
+                    } else {
+                        // Анимации нет, просто показываем шапку
+                        showHeader();
                     }
                     if (!animationPlayed) {
                         title.classList.remove('visible');
